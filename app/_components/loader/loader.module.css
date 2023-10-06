@@ -1,0 +1,13 @@
+/*https://cssloaders.github.io/*/
+.loader::before, .loader:after {
+    background-image: radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0),
+    radial-gradient(circle 10px, #FFF 100%, transparent 0);
+    background-position: 0 -18em, 0 18em, 18em 0, -18em 0,
+    13em -13em, -13em -13em, 13em 13em, -13em 13em;
+}
