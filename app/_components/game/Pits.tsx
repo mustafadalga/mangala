@@ -1,9 +1,11 @@
 import { useCallback } from "react";
 import { doc, DocumentReference, getFirestore, updateDoc } from "firebase/firestore";
 import useAuth from "@/_providers/auth/useAuth";
-import { Gamer } from "@/_types";
+import convertArrayToObject from "@/_utilities/convertArrayToObject";
+import { Gamer, Pit as IPit, Stone } from "@/_types";
 import { Direction } from "@/_enums";
-import Pit from "@/_components/game/Pit";
+
+import Pit from "./Pit";
 
 interface Props {
     roomID: string,
@@ -28,7 +30,6 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
     const isUserAllowedToMove = (user?.uid == moveOrder) && isGameStarted && !isGameCompleted;
     const hasRight = isCurrentGamerPits && isUserAllowedToMove;
     const isGameOwner = user?.uid == gameOwner;
-
     const determineWinner = useCallback((currentGamer: Gamer, rival: Gamer, isAllPitsEmpty: boolean): string | null => {
         if (!isAllPitsEmpty) return null;
 
@@ -38,48 +39,63 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
 
     }, []);
     const handleIsLastStoneMakesRivalPitEven = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, isLastStone: boolean, isDirectionTop: boolean) => {
-        const isLastStoneMakesRivalPitEven = isLastStone && ((isDirectionTop && !isGameOwner) || (!isDirectionTop && isGameOwner)) && rival.pits[currentIndex] % 2 === 0;
+        const isLastStoneMakesRivalPitEven = isLastStone && ((isDirectionTop && !isGameOwner) || (!isDirectionTop && isGameOwner)) && rival.pits[currentIndex].length % 2 === 0;
         if (isLastStoneMakesRivalPitEven) {
-            gamer.treasure += rival.pits[currentIndex];
-            rival.pits[currentIndex] = 0;
+            rival.pits[currentIndex].map(stone => gamer.treasure.push(stone))
+            rival.pits[currentIndex] = [];
         }
     }, [ isGameOwner ]);
 
     const handleIsLastPitOneStone = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, isLastStone: boolean) => {
-        const isLastPitOneStone = gamer.pits[currentIndex] === SINGLE_STONE_THRESHOLD;
-        const hasRivalPitOneStone = rival.pits[currentIndex] > LAST_STONE_THRESHOLD;
+        const isLastPitOneStone = gamer.pits[currentIndex].length === SINGLE_STONE_THRESHOLD;
+        const hasRivalPitOneStone = rival.pits[currentIndex].length > LAST_STONE_THRESHOLD;
         if (isLastPitOneStone && isLastStone && hasRivalPitOneStone) {
-            gamer.treasure += gamer.pits[currentIndex] + rival.pits[currentIndex];
-            gamer.pits[currentIndex] = 0;
-            rival.pits[currentIndex] = 0;
+            gamer.pits[currentIndex].concat(rival.pits[currentIndex]).map(stone => gamer.treasure.push(stone));
+            gamer.pits[currentIndex] = [];
+            rival.pits[currentIndex] = [];
         }
     }, []);
-    const handleUpdateCurrentPit = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, isDirectionTop: boolean) => {
+    const handleUpdateCurrentPit = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, selectedPit: IPit, isDirectionTop: boolean) => {
+        const stone: Stone = selectedPit.shift()!;
+
         if (isGameOwner) {
-            isDirectionTop ? gamer.pits[currentIndex]++ : rival.pits[currentIndex]++;
+            isDirectionTop ? gamer.pits[currentIndex].push(stone) : rival.pits[currentIndex].push(stone);
         } else {
-            isDirectionTop ? rival.pits[currentIndex]++ : gamer.pits[currentIndex]++;
+            isDirectionTop ? rival.pits[currentIndex].push(stone) : gamer.pits[currentIndex].push(stone);
         }
     }, [ isGameOwner ])
     const handleAllPitsEmpty = useCallback((gamer: Gamer, rival: Gamer) => {
-        const isAllPitsEmpty = gamer.pits.every(pit => pit === 0);
+        const isAllPitsEmpty = gamer.pits.every(pit => pit.length == 0);
         if (isAllPitsEmpty) {
-            gamer.treasure += rival.pits.reduce((prev, currentValue) => (prev + currentValue), 0);
-            rival.pits = rival.pits.map(_ => 0);
+            rival.pits.map(pit => pit.map(stone => gamer.treasure.push(stone)))
+            rival.pits = rival.pits.map(_ => []);
         }
         return isAllPitsEmpty;
     }, []);
     const updateFirebase = useCallback(async (currentGamer: Gamer, rival: Gamer, isLastStoneInTreasure: boolean, isAllPitsEmpty: boolean) => {
+
         await updateDoc(docRef, {
-            "gamer1": isGameOwner ? currentGamer : rival,
-            "gamer2": isGameOwner ? rival : currentGamer,
+            "gamer1": isGameOwner ? {
+                ...currentGamer,
+                pits: convertArrayToObject(currentGamer.pits)
+            } : {
+                ...rival,
+                pits: convertArrayToObject(rival.pits)
+            },
+            "gamer2": isGameOwner ? {
+                ...rival,
+                pits: convertArrayToObject(rival.pits)
+            } : {
+                ...currentGamer,
+                pits: convertArrayToObject(currentGamer.pits)
+            },
             "moveOrder": isLastStoneInTreasure ? currentGamer.id : rival.id,
             "isGameCompleted": isAllPitsEmpty,
             "winnerGamer": determineWinner(currentGamer, rival, isAllPitsEmpty)
         });
     }, [ isGameOwner, docRef, determineWinner ]);
 
-    const handleBoundaryConditions = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, direction: Direction, isLastStone: boolean) => {
+    const handleBoundaryConditions = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, selectedPit: IPit, direction: Direction, isLastStone: boolean) => {
         let isLastStoneInTreasure = false;
         if ((currentIndex != TOP_BOUNDARY) && (currentIndex !== BOTTOM_BOUNDARY)) {
             return {
@@ -92,13 +108,14 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
 
         direction = direction === Direction.Top ? Direction.Bottom : Direction.Top;
 
+        const stone: Stone = selectedPit.shift()!;
+
         if (currentIndex == TOP_BOUNDARY) {
             currentIndex = 0;
-
             if (isGameOwner) {
-                gamer.treasure++;
+                gamer.treasure.push(stone);
             } else {
-                rival.pits[currentIndex]++;
+                rival.pits[currentIndex].push(stone);
                 currentIndex++;
             }
 
@@ -108,10 +125,10 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
             currentIndex = 5;
 
             if (isGameOwner) {
-                gamer.pits[currentIndex]++;
+                gamer.pits[currentIndex].push(stone);
                 currentIndex--;
             } else {
-                gamer.treasure++;
+                gamer.treasure.push(stone);
             }
 
             isLastStoneInTreasure = isLastStone && !isGameOwner;
@@ -126,15 +143,16 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
 
     }, [ isGameOwner ])
 
-    const handlePit = useCallback(async (pit: number, pitIndex: number) => {
-        if (!hasRight || pit == 0) return;
+    const handlePit = useCallback(async (pit: IPit, pitIndex: number) => {
+        if (!hasRight || pit.length == 0) return;
 
         let direction = position;
         const newGamer = { ...gamer }
         const newRival = { ...rivalGamer }
-        newGamer.pits[pitIndex] = 0;
+        const selectedPit: IPit = [ ...pit ];
+        newGamer.pits[pitIndex] = [];
         let currentIndex = pitIndex;
-        let remainingStones = pit;
+        let remainingStones = pit.length;
         const isSingleStone = remainingStones == SINGLE_STONE_THRESHOLD;
         let isLastStoneInTreasure = false;
 
@@ -145,11 +163,11 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
             const isDirectionTop = direction == Direction.Top;
             let hasBoundary = false;
 
-            ({ currentIndex, direction, isLastStoneInTreasure, hasBoundary } = handleBoundaryConditions(newGamer, newRival, currentIndex, direction, isLastStone));
+            ({ currentIndex, direction, isLastStoneInTreasure, hasBoundary } = handleBoundaryConditions(newGamer, newRival, currentIndex, selectedPit, direction, isLastStone));
 
             if (hasBoundary) continue;
 
-            handleUpdateCurrentPit(newGamer, newRival, currentIndex, isDirectionTop);
+            handleUpdateCurrentPit(newGamer, newRival, currentIndex, selectedPit, isDirectionTop);
             handleIsLastStoneMakesRivalPitEven(newGamer, newRival, currentIndex, isLastStone, isDirectionTop);
             handleIsLastPitOneStone(newGamer, newRival, currentIndex, isLastStone);
 
@@ -172,12 +190,19 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
         handleAllPitsEmpty,
         handleBoundaryConditions,
     ]);
+
+
+    const createPitClickHandler = useCallback(
+        (pit: IPit, index: number) => () => handlePit(pit, index),
+        [ handlePit ]
+    );
     return (
-        gamer.pits.map((pit: number, pitIndex: number) => (
-            <Pit key={pitIndex}
+        gamer.pits.map((pit, index) => (
+            <Pit key={index}
                  pit={pit}
+                 onClick={createPitClickHandler(pit, index)}
                  hasRight={hasRight}
-                 onClick={() => handlePit(pit, pitIndex)}/>
+            />
         ))
     );
 };
