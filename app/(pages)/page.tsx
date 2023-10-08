@@ -1,25 +1,23 @@
 "use client";
-import { useRef, useState } from "react";
-import Link from "next/link";
+import {  useRef, useState } from "react";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import withAuth from "@/_hocs/withAuth";
 import useAuth from "@/_providers/auth/useAuth";
 import generatePits from "@/_utilities/generatePits";
 import PageContainer from "@/_components/PageContainer";
-import ClipBoard from "@/_components/icons/ClipBoard";
 import { RoomRaw } from "@/_types";
+import useLoader from "@/_store/useLoader";
+import ClipBoardURL from "@/_components/ClipBoardURL";
 
 
 function Home() {
+    const loader = useLoader();
     const { user } = useAuth();
     const [ roomID, setRoomID ] = useState<string | null>(null);
-    const [ url, setURL ] = useState<string | null>(null);
-    const [ isCreated, setIsCreated ] = useState(true);
+
     const currentStoneIndex = useRef(1);
     const handleCreateGame = async () => {
-        if (!isCreated) return;
-
-        setIsCreated(false);
+        loader.onOpen();
         const collectionRef = collection(getFirestore(), "rooms");
         const gameData: RoomRaw = {
             isGameStarted: false,
@@ -39,10 +37,11 @@ function Home() {
             }
         }
         const docRef = await addDoc(collectionRef, gameData)
-        setIsCreated(true);
+        loader.onClose();
         setRoomID(docRef.id);
-        setURL(`${process.env.NEXT_PUBLIC_SITE_URL}/room/${docRef.id}`);
     }
+
+
     return (
         <PageContainer>
             <article className="grid place-items-center px-4 lg:px-0 py-8 lg:py-16">
@@ -57,17 +56,10 @@ function Home() {
                     </button>
 
 
-                    {url && (
-                        <>
-                            <hr/>
-                            <div className="flex items-center text-xs lg:text-sm gap-3 truncate">
-                                <span className="font-semibold">Room Url :</span>
-                                <Link href={`/room/${roomID}`}
-                                      className="text-blue-500 truncate w-2/3">{url}</Link>
-                                <ClipBoard className="w-4 h-4 lg:w-6 lg:h-6 text-purple-500 cursor-pointer"/>
-                            </div>
-                        </>
+                    { roomID && (
+                        <ClipBoardURL roomID={roomID}/>
                     )}
+
                 </div>
             </article>
         </PageContainer>
