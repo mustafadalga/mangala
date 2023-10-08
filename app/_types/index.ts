@@ -1,8 +1,13 @@
 export interface Gamer {
     id: string | null;
-    treasure: number;
-    pits: number[];
+    treasure: Stone[];
+    pits: Pit[];
 }
+
+export interface GamerRaw extends Omit<Gamer, "pits"> {
+    pits: PitsRaw;
+}
+
 
 export interface Room {
     isGameStarted: boolean;
@@ -12,6 +17,11 @@ export interface Room {
     moveOrder: string;
     gamer1: Gamer;
     gamer2: Gamer;
+}
+
+export interface RoomRaw extends Omit<Room, "gamer1" | "gamer2"> {
+    gamer1: GamerRaw;
+    gamer2: GamerRaw;
 }
 
 export interface User {
@@ -30,4 +40,25 @@ export interface PositionThreshold {
     minTop: number,
     maxLeft: number,
     maxTop: number
+}
+
+export interface Stone {
+    no: number,
+    color: string
+}
+
+export interface StoneWithPosition {
+    stone: Stone,
+    position: Position
+}
+
+export type Pit = Stone[];
+export type Pits = Pit[];
+export type PitsRaw = {
+    pit1: Pit,
+    pit2: Pit,
+    pit3: Pit,
+    pit4: Pit,
+    pit5: Pit,
+    pit6: Pit
 }
