@@ -1,4 +1,4 @@
-import { Pit, Position, PositionThreshold, StoneWithPosition } from "@/_types";
+import { Position, PositionThreshold } from "@/_types";
 
 export function generateRandomPosition(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -15,7 +15,7 @@ export function isValidPosition(position: Position, usedPositions: Position[]): 
     return true;
 }
 
-export function generatePositionsForStones({
+export default function generatePositionsForStones({
                                                minLeft,
                                                minTop,
                                                maxLeft,
@@ -35,7 +35,6 @@ export function generatePositionsForStones({
             };
             tries++;
             if (tries > maxTries) {
-                position = usedPositions[usedPositions.length - 1] || { left: maxLeft - 10, top: maxTop - 10 }; // Use last valid position or default if none
                 break;
             }
 
