@@ -6,18 +6,23 @@ import withAuth from "@/_hocs/withAuth";
 import useAuth from "@/_providers/auth/useAuth";
 import convertObjectToArray from "@/_utilities/convertObjectToArray";
 import { Direction } from "@/_enums";
-import {  Room, RoomRaw } from "@/_types";
+import { Room, RoomRaw } from "@/_types";
 import Treasure from "@/_components/game/Treasure";
 import Pits from "@/_components/game/Pits";
 import PageContainer from "@/_components/PageContainer";
+import useLoader from "@/_store/useLoader";
 
 
-const Page = ({ params: { id } }: { params: { id: string } }) => {
+const Page = ({ params: { id } }: {
+    params: {
+        id: string
+    }
+}) => {
+    const loader = useLoader();
     const { user, isLoaded: isUserLoaded } = useAuth();
     const { push } = useRouter();
     const db = getFirestore()
     const [ room, setRoom ] = useState<Room | null>(null);
-    const [ isGameLoaded, setIsGameLoaded ] = useState(false);
     const areBothGamersJoined = useMemo(() => !!(room?.gamer1.id && room.gamer2.id), [ room?.gamer1.id, room?.gamer2.id ])
     const isFirstGamer = useMemo(() => user?.uid == room?.gamer1.id, [ room?.gamer1.id, user?.uid ])
     const docRef: DocumentReference = doc(db, "rooms", id);
@@ -49,30 +54,27 @@ const Page = ({ params: { id } }: { params: { id: string } }) => {
     }, []);
 
     useEffect(() => {
-        let timeoutId: NodeJS.Timeout;
-
         const unSubscribe = onSnapshot(docRef, (doc: DocumentSnapshot) => {
-            timeoutId = setTimeout(() => setIsGameLoaded(true), 300);
-
             doc.exists() ? setRoomData(doc.data() as RoomRaw) : push("/")
-
         });
         return () => {
-            clearTimeout(timeoutId);
             unSubscribe();
         };
 
     }, []);
 
     useEffect(() => {
-        if (!isUserLoaded || !isGameLoaded || areBothGamersJoined || isFirstGamer) return;
+        if (!isUserLoaded || areBothGamersJoined || isFirstGamer || !room) return;
 
         setSecondGamer();
         startGame();
 
-    }, [ isUserLoaded, isGameLoaded, areBothGamersJoined, isFirstGamer, setSecondGamer, startGame ])
+    }, [ isUserLoaded, areBothGamersJoined, isFirstGamer, setSecondGamer, startGame ]);
 
-    if (!isGameLoaded) return null;
+
+    useEffect(() => {
+        isUserLoaded ? loader.onClose() : loader.onOpen();
+    }, [ isUserLoaded ])
 
     return (
         <PageContainer>
@@ -91,7 +93,7 @@ const Page = ({ params: { id } }: { params: { id: string } }) => {
                                                         isGameStarted={room.isGameStarted}
                                                         isGameCompleted={room.isGameCompleted}
                                                         position={Direction.Top}
-                            /> }
+                            />}
 
 
                             {room?.gamer2.pits && <Pits roomID={id}

@@ -15,7 +15,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-icons": "^4.11.0"
+    "react-icons": "^4.11.0",
+    "zustand": "^4.4.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.199",
