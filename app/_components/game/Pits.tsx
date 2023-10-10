@@ -1,14 +1,13 @@
 import { useCallback } from "react";
-import { doc, DocumentReference, getFirestore, updateDoc } from "firebase/firestore";
+import { useParams } from "next/navigation";
+import { doc, DocumentReference, getFirestore, serverTimestamp, updateDoc } from "firebase/firestore";
 import useAuth from "@/_providers/auth/useAuth";
 import convertArrayToObject from "@/_utilities/convertArrayToObject";
 import { Gamer, Pit as IPit, Stone } from "@/_types";
 import { Direction } from "@/_enums";
-
 import Pit from "./Pit";
 
 interface Props {
-    roomID: string,
     gamer: Gamer;
     rivalGamer: Gamer,
     gameOwner: string,
@@ -23,9 +22,11 @@ const SINGLE_STONE_THRESHOLD = 1;
 const LAST_STONE_THRESHOLD = 0;
 const TOP_BOUNDARY = -1;
 const BOTTOM_BOUNDARY = 6;
-export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, isCurrentGamerPits, position, isGameStarted, isGameCompleted }: Props) {
-    const { user } = useAuth();
+export default function Pits({ gamer, rivalGamer, gameOwner, moveOrder, isCurrentGamerPits, position, isGameStarted, isGameCompleted }: Props) {
+    const { id: roomID }: { id: string } = useParams();
     const db = getFirestore()
+
+    const { user } = useAuth();
     const docRef: DocumentReference = doc(db, "rooms", roomID);
     const isUserAllowedToMove = (user?.uid == moveOrder) && isGameStarted && !isGameCompleted;
     const hasRight = isCurrentGamerPits && isUserAllowedToMove;
@@ -91,7 +92,8 @@ export default function Pits({ roomID, gamer, rivalGamer, gameOwner, moveOrder, 
             },
             "moveOrder": isLastStoneInTreasure ? currentGamer.id : rival.id,
             "isGameCompleted": isAllPitsEmpty,
-            "winnerGamer": determineWinner(currentGamer, rival, isAllPitsEmpty)
+            "winnerGamer": determineWinner(currentGamer, rival, isAllPitsEmpty),
+            moveStartTimestamp: serverTimestamp(),
         });
     }, [ isGameOwner, docRef, determineWinner ]);
 

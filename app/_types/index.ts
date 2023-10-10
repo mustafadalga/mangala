@@ -1,3 +1,5 @@
+import { Timestamp } from "@firebase/firestore";
+
 export interface Gamer {
     id: string | null;
     treasure: Stone[];
@@ -15,6 +17,7 @@ export interface Room {
     winnerGamer: null | string;
     gameOwner: string,
     moveOrder: string;
+    moveStartTimestamp: Timestamp | null;
     gamer1: Gamer;
     gamer2: Gamer;
 }

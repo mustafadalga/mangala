@@ -1,5 +1,5 @@
 "use client";
-import {  useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import withAuth from "@/_hocs/withAuth";
 import useAuth from "@/_providers/auth/useAuth";
@@ -25,6 +25,7 @@ function Home() {
             winnerGamer: null,
             gameOwner: user?.uid as string,
             moveOrder: user?.uid as string,
+            moveStartTimestamp: null,
             gamer1: {
                 id: user?.uid || null,
                 treasure: [],
@@ -56,7 +57,7 @@ function Home() {
                     </button>
 
 
-                    { roomID && (
+                    {roomID && (
                         <ClipBoardURL roomID={roomID}/>
                     )}
 
