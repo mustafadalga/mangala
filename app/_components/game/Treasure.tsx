@@ -37,7 +37,7 @@ const Treasure = ({ treasure, className }: { treasure: IStone[], className?: str
 
     return (
         <div
-            className={`${className} backdrop-lg p-3 h-20 sm:h-24 w-full lg:w-40 lg:h-96  grid content-center justify-normal lg:content-baseline lg:justify-center rounded-[8rem] backdrop-blur-xl bg-white/25 border border-white`}>
+            className={`${className} backdrop-lg p-3 h-14 xs:h-16 sm:h-20 w-full lg:w-40 lg:h-96  grid content-center justify-normal lg:content-baseline lg:justify-center rounded-[8rem] backdrop-blur-xl bg-white/25 border border-white`}>
             <AnimatePresence>
                 {stones.map((stone) => <Stone stone={stone} key={stone.stone.no}/>)}
             </AnimatePresence>

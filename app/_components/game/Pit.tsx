@@ -45,7 +45,7 @@ const Pit = ({ pit, hasRight, onClick }: Props) => {
     return (
         <div
             onClick={onClick}
-            className={`${className} relative rounded-full w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-32 lg:h-32 p-2 lg:p-4 border`}>
+            className={`${className} relative rounded-full w-10 h-10 xs:w-12 xs:h-12  sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 2xl:w-32 2xl:h-32 p-2 lg:p-4 border`}>
             <AnimatePresence>
                 {stones.map(stone => (
                     <Stone key={stone.stone.no} stone={stone} />

@@ -122,7 +122,7 @@ const Page = ({ params: { id } }: {
             push("/");
         }
 
-    }, [ isUserLoaded, room?.gamer1, room?.gamer2, hasAuthorization, push ])
+    }, [ isUserLoaded, room?.gamer1, room?.gamer2, hasAuthorization, areBothGamersJoined, push ])
 
     if (!room) return null;
 
