@@ -1,9 +1,10 @@
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { doc, DocumentReference, getFirestore, updateDoc } from "firebase/firestore";
 import useLoader from "@/_store/useLoader";
 
-export default function RoomOptions({ id }: { id: string }) {
+export default function RoomOptions() {
     const { push } = useRouter();
+    const { id }: { id: string } = useParams();
     const db = getFirestore();
     const loader = useLoader();
     const docRef: DocumentReference = doc(db, "rooms", id);

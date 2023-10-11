@@ -1,4 +1,4 @@
-export default function ClipBoard({ className, onClick }: {
+export default function IconClipBoard({ className, onClick }: {
     className: string,
     onClick: () => void
 }) {

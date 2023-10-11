@@ -10,6 +10,7 @@ import {
     onSnapshot,
     serverTimestamp
 } from "firebase/firestore"
+import { AnimatePresence } from "framer-motion";
 import { Timestamp } from "firebase/firestore";
 import useLoader from "@/_store/useLoader";
 import withAuth from "@/_hocs/withAuth";
@@ -22,6 +23,8 @@ import Pits from "@/_components/game/Pits";
 import PageContainer from "@/_components/PageContainer";
 import RoomOptions from "@/_components/game/RoomOptions";
 import CountdownProgressBar from "@/_components/game/CountdownProgressBar";
+import ModalGameOver from "@/_components/modals/game-over/ModalGameOver";
+import useModalGameOver from "@/_store/useModalGameOver";
 
 
 const Page = ({ params: { id } }: {
@@ -30,6 +33,11 @@ const Page = ({ params: { id } }: {
     }
 }) => {
     const loader = useLoader();
+    const {
+        isOpen: isModalGameOverOpen,
+        onOpen: onOpenModalGameOver,
+        onClose: onCloseModalGameOver
+    } = useModalGameOver();
     const { user, isLoaded: isUserLoaded } = useAuth();
     const { push } = useRouter();
     const db = getFirestore()
@@ -70,19 +78,21 @@ const Page = ({ params: { id } }: {
         }
         setRoom(room);
     }, []);
+    const hasAuthorization = useMemo(() => areBothGamersJoined && (user?.uid === room?.gamer1.id || user?.uid === room?.gamer2.id),
+        [ areBothGamersJoined, user?.uid, room?.gamer1.id, room?.gamer2.id ]);
 
     useEffect(() => {
         const unSubscribe = onSnapshot(docRef, (doc: DocumentSnapshot) => {
-            if (doc.exists() && !doc.data().isGameCompleted) {
+            if (doc.exists()) {
                 setRoomData(doc.data() as RoomRaw)
             } else {
                 push("/")
             }
         });
+
         return () => {
             unSubscribe();
         };
-
     }, []);
 
     useEffect(() => {
@@ -98,26 +108,43 @@ const Page = ({ params: { id } }: {
         isUserLoaded ? loader.onClose() : loader.onOpen();
     }, [ isUserLoaded ]);
 
+    useEffect(() => {
+        if (!isUserLoaded || !room) return;
+
+        room.isGameCompleted ? onOpenModalGameOver() : onCloseModalGameOver();
+
+    }, [ isUserLoaded, room, onOpenModalGameOver, onCloseModalGameOver ]);
+
+    useEffect(() => {
+        if (!isUserLoaded || !areBothGamersJoined || !room?.gamer1 || !room?.gamer2) return;
+
+        if (!hasAuthorization) {
+            push("/");
+        }
+
+    }, [ isUserLoaded, room?.gamer1, room?.gamer2, hasAuthorization, push ])
+
     if (!room) return null;
 
     return (
         <PageContainer>
-            <main className="h-screen flex flex-col bg-no-repeat bg-cover bg-[url('/bg-room.jpeg')]">
-                <div className="mt-20">
+            <main
+                className="h-full flex flex-col bg-no-repeat bg-red-300 bg-cover bg-fixed bg-[url('/bg-room.jpeg')]">
+                <div className="lg:mt-20">
                     <div className="flex flex-col lg:flex-row items-center justify-center gap-5 p-5">
                         {room?.gamer1 && (
-                            <div className="flex flex-col w-full items-center gap-3">
+                            <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
                                 {showCountDown &&
                                     <CountdownProgressBar
                                         room={room}
                                         pause={!countDownState.left}
-                                        className={countDownState.left ? "bg-green-600/50 border-green-500":"backdrop-blur-sm bg-purple-900/10 border-white"}
+                                        className={countDownState.left ? "bg-green-600/50 border-green-500" : "backdrop-blur-sm bg-purple-900/10 border-white"}
                                         startTime={room.moveStartTimestamp as Timestamp}/>}
                                 <Treasure treasure={room?.gamer1.treasure}/>
                             </div>
                         )}
 
-                        <div className="grid grid-cols-6 place-items-center gap-3 my-10 lg:my-0">
+                        <div className="grid grid-cols-6 place-items-center gap-3 my-10 lg:mb-0 lg:mt-[5.626rem]">
                             {room?.gamer1.pits && <Pits
                                 gamer={room.gamer1}
                                 rivalGamer={room.gamer2}
@@ -142,11 +169,11 @@ const Page = ({ params: { id } }: {
                         </div>
 
                         {room?.gamer2 && (
-                            <div className="flex flex-col w-full items-center gap-3">
+                            <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
                                 {showCountDown && <CountdownProgressBar room={room}
                                                                         startTime={room.moveStartTimestamp as Timestamp}
                                                                         pause={!countDownState.right}
-                                                                        className={`${countDownState.right ? "bg-green-600/50 border-green-500":"backdrop-blur-sm bg-purple-900/10 border-white"} order-2 lg:order-1`}/>
+                                                                        className={`${countDownState.right ? "bg-green-600/50 border-green-500" : "backdrop-blur-sm bg-purple-900/10 border-white"} order-2 lg:order-1`}/>
                                 }
                                 <Treasure treasure={room?.gamer2.treasure}
                                           className="order-1 lg:order-2"/>
@@ -154,9 +181,13 @@ const Page = ({ params: { id } }: {
                         )}
                     </div>
 
-                    {room && <RoomOptions id={id}/>}
+                    {room && <RoomOptions/>}
                 </div>
             </main>
+            <AnimatePresence>
+                {isModalGameOverOpen && <ModalGameOver/>}
+            </AnimatePresence>
+
         </PageContainer>);
 };
 
