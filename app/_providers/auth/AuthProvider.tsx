@@ -6,6 +6,14 @@ import AuthContext from "./AuthContext";
 import { User } from "@/_types";
 import useLoader from "@/_store/useLoader";
 
+/**
+ * Provides an authentication context to its children.
+ *
+ * Listens to authentication state changes and provides the authenticated user
+ * and a loading state to its descendants.
+ *
+ * @param props.children - The child components to be rendered within this provider.
+ */
 export default function AuthProvider({ children }: {
     children: ReactNode
 }) {

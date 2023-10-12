@@ -1,6 +1,10 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "@firebase/auth";
 
+/**
+ * Configuration object for Firebase initialization.
+ * Uses environment variables for security.
+ */
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -11,9 +15,20 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
+/**
+ * Initialize or retrieve the Firebase app instance.
+ * Checks if an app has already been initialized to avoid duplicate instances.
+ */
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+/**
+ * Retrieve the authentication instance associated with the Firebase app.
+ */
 const auth = getAuth(app);
+
+/**
+ * Provider for Google authentication.
+ */
 const provider = new GoogleAuthProvider();
 
 export {

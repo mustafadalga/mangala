@@ -28,7 +28,16 @@ import CountdownProgressBar from "@/_components/game/CountdownProgressBar";
 import ModalGameOver from "@/_components/modals/game-over/ModalGameOver";
 import ModalExitGame from "@/_components/modals/exit-game/ModalExitGame";
 
-
+/**
+ * The main game page that displays all game components and manages game logic.
+ *
+ * This page shows the game room where two players can play against each other.
+ * It handles game start and end states, shows countdowns for each player's moves,
+ * and updates Firestore in real-time with game data.
+ *
+ * @param params.id - The ID of the game room.
+ * @returns The rendered game page.
+ */
 const Page = ({ params: { id } }: {
     params: {
         id: string
@@ -48,17 +57,43 @@ const Page = ({ params: { id } }: {
     const isFirstGamer = useMemo(() => user?.uid == room?.gamer1.id, [ room?.gamer1.id, user?.uid ]);
     const showCountDown = room?.isGameStarted && !room?.isGameCompleted;
     const docRef: DocumentReference = doc(db, "rooms", id);
+
+    /**
+     * Computes whether the Exit Game modal should be shown.
+     *
+     * The modal will be shown if another user has initiated an exit and the current user has not
+     * confirmed it yet. It's important that both gamers have joined the room and the user data is loaded.
+     *
+     * @returns {boolean} - `true` if the modal should be shown, `false` otherwise.
+     */
     const showModalExitGame = useMemo(() => {
         if (!isUserLoaded || !areBothGamersJoined) return false;
 
         return room?.exitGame?.userId && room.exitGame.userId !== user?.uid
     }, [ isUserLoaded, areBothGamersJoined, room?.exitGame?.userId, user?.uid ]);
 
+    /**
+     * Computes the state of the countdown for both gamers.
+     *
+     * - `left`: Indicates whether the left gamer (gamer1) should have the countdown running.
+     * - `right`: Indicates whether the right gamer (gamer2) should have the countdown running.
+     *
+     * @returns {Object} - An object with the countdown state for both gamers.
+     */
     const countDownState = useMemo(() => ({
         left: room?.gamer1.id === room?.moveOrder,
         right: room?.gamer2.id === room?.moveOrder
     }), [ room?.gamer1.id, room?.gamer2.id, room?.moveOrder ]);
 
+    /**
+     * Determines if the current user is authorized to play in the room.
+     */
+    const hasAuthorization = useMemo(() => areBothGamersJoined && (user?.uid === room?.gamer1.id || user?.uid === room?.gamer2.id),
+        [ areBothGamersJoined, user?.uid, room?.gamer1.id, room?.gamer2.id ]);
+
+    /**
+     * Sets the second gamer in the game room.
+     */
     const setSecondGamer = useCallback(async () => {
         try {
             await updateDoc(docRef, {
@@ -68,6 +103,10 @@ const Page = ({ params: { id } }: {
             toast.error("Oops! Something went wrong while starting game. Please refresh the page and try again!")
         }
     }, [ user?.uid, docRef ]);
+
+    /**
+     * Starts the game by updating the game state in Firestore.
+     */
     const startGame = useCallback(async () => {
         try {
             await updateDoc(docRef, {
@@ -79,6 +118,11 @@ const Page = ({ params: { id } }: {
         }
     }, [ docRef ]);
 
+    /**
+     * Converts the raw room data from Firestore to the desired format and updates the local state.
+     *
+     * @param roomRaw - The raw room data from Firestore.
+     */
     const setRoomData = useCallback((roomRaw: RoomRaw) => {
         const room = {
             ...roomRaw,
@@ -93,9 +137,12 @@ const Page = ({ params: { id } }: {
         }
         setRoom(room);
     }, []);
-    const hasAuthorization = useMemo(() => areBothGamersJoined && (user?.uid === room?.gamer1.id || user?.uid === room?.gamer2.id),
-        [ areBothGamersJoined, user?.uid, room?.gamer1.id, room?.gamer2.id ]);
 
+
+    /**
+     * Effect hook to fetch the room data in real-time from Firestore.
+     * Unsubscribes from Firestore updates on unmount.
+     */
     useEffect(() => {
         let unSubscribe: (() => void) | undefined;
 
@@ -118,6 +165,10 @@ const Page = ({ params: { id } }: {
         };
     }, []);
 
+    /**
+     * Effect hook to initiate the game if conditions are met.
+     * Sets the second gamer and starts the game.
+     */
     useEffect(() => {
         if (!isUserLoaded || areBothGamersJoined || isFirstGamer || !room) return;
 
@@ -127,10 +178,16 @@ const Page = ({ params: { id } }: {
     }, [ isUserLoaded, areBothGamersJoined, isFirstGamer, setSecondGamer, startGame ]);
 
 
+    /**
+     * Effect hook to manage the loading state based on user load state.
+     */
     useEffect(() => {
         isUserLoaded ? loader.onClose() : loader.onOpen();
     }, [ isUserLoaded ]);
 
+    /**
+     * Effect hook to manage the game over modal based on game completion state.
+     */
     useEffect(() => {
         if (!isUserLoaded || !room) return;
 
@@ -138,6 +195,10 @@ const Page = ({ params: { id } }: {
 
     }, [ isUserLoaded, room, onOpenModalGameOver, onCloseModalGameOver ]);
 
+    /**
+     * Effect hook to check user authorization for the game room.
+     * Redirects unauthorized users to the home page.
+     */
     useEffect(() => {
         if (!isUserLoaded || !areBothGamersJoined || !room?.gamer1 || !room?.gamer2) return;
 

@@ -2,6 +2,11 @@ import { MutableRefObject } from "react";
 import { Pit } from "@/_types";
 import convertArrayToObject from "./convertArrayToObject";
 
+/**
+ * Generates a random stone color based on a predefined set of TailwindCSS colors.
+ *
+ * @returns A randomly selected TailwindCSS color string.
+ */
 function generateStoneColor() {
     const tailwindStoneColors = [
         "bg-[radial-gradient(circle_at_30%_30%,rgb(99,102,241),rgb(59,130,246)_70%)]",
@@ -20,6 +25,16 @@ function generateStoneColor() {
     return tailwindStoneColors[Math.floor(Math.random() * tailwindStoneColors.length)];
 }
 
+/**
+ * Generates pits filled with stones. Each pit contains a set number of stones.
+ *
+ * This function also updates the provided stone index reference, so that the next time
+ * it's used, the stones will have unique, incremented indices.
+ *
+ * @param currentStoneIndex - A mutable reference to the current stone index.
+ *                            Used to ensure that stones get unique indices.
+ * @returns An object representation of pits.
+ */
 export default function generatePits(currentStoneIndex: MutableRefObject<number>) {
     const pitCount = 6;
     const stoneCount = 4;

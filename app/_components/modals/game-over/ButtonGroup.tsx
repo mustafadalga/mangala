@@ -16,6 +16,15 @@ export default function ButtonGroup() {
     const currentStoneIndex = useRef(1);
     const docRef: DocumentReference = doc(db, "rooms", id);
 
+    /**
+     * Asynchronously creates a new game in Firestore by updating the game's document with initial data.
+     *
+     * This function does the following:
+     * - Updates the document with game data to mark the game as started.
+     * - Resets the treasure and pits for both gamers using `generatePits`.
+     * - Closes any open modal or pop-up using `onClose`.
+     * - If an error occurs during the process, a toast error message is displayed.
+     */
     const handleNewGame = async () => {
       try {
           await updateDoc(docRef, {
@@ -35,6 +44,16 @@ export default function ButtonGroup() {
           toast.error("Oops! Something went wrong while creating new game. Please refresh the page and try again!")
       }
     }
+
+    /**
+     * Asynchronously updates the game's state in Firestore to indicate the user's intent to exit the game.
+     *
+     * This function does the following:
+     * - Updates the document with the `exitGame` field to store the ID of the user intending to exit.
+     * - Closes any open modal or pop-up using `onClose`.
+     * - Redirects the user to the home page.
+     * - If an error occurs during the process, a toast error message is displayed.
+     */
     const handleExit = async () => {
       try {
           await updateDoc(docRef, {

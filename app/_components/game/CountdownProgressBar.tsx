@@ -13,12 +13,30 @@ interface Props {
     className?: string,
 }
 
+/**
+ * CountdownProgressBar component that manages and displays a countdown timer specific for a game room.
+ *
+ * @param room - The current game room.
+ * @param startTime - The timestamp when the countdown started.
+ * @param pause - If `true`, the countdown will be paused.
+ * @param className - Optional CSS class to style the component.
+ * @returns The rendered CountdownProgressBar component.
+ */
 export default function CountdownProgressBar({ room, startTime, pause, className }: Props) {
     const { id: roomID }: { id: string } = useParams();
     const db = getFirestore()
     const docRef: DocumentReference = doc(db, "rooms", roomID);
 
+    /**
+     * Memoizes the `startTime` for performance optimization.
+     */
     const memorizedStartTime = useDeepCompareMemoize(startTime);
+
+    /**
+     * Computes the elapsed seconds since the `startTime`.
+     *
+     * @returns The number of seconds elapsed since the `startTime`.
+     */
     const elapsedSeconds = useMemo(() => {
         if (!memorizedStartTime) return 0;
 
@@ -26,6 +44,10 @@ export default function CountdownProgressBar({ room, startTime, pause, className
         return Math.floor(now.toMillis() - memorizedStartTime.toMillis()) / 1000;
     }, [ memorizedStartTime ]);
 
+    /**
+     * Handles the logic when the countdown timer completes.
+     * Updates the move order in the Firestore database.
+     */
     const onComplete = useCallback(() => {
        try {
            updateDoc(docRef, {

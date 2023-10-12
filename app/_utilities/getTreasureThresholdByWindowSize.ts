@@ -1,5 +1,14 @@
 import { PositionThreshold } from "@/_types";
 
+/**
+ * Computes the position thresholds based on the current window's width.
+ *
+ * This function defines position boundaries for different screen sizes
+ * which can be useful for responsive design or adjusting game mechanics
+ * based on the screen size.
+ *
+ * @returns A `PositionThreshold` object containing min and max coordinates for both left and top.
+ */
 export default function getTreasureThresholdByWindowSize(): PositionThreshold {
     if (window.innerWidth >= 1024) {
         return {

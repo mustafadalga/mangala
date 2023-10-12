@@ -4,6 +4,15 @@ import { toast } from "react-toastify";
 import useLoader from "@/_store/useLoader";
 import useAuth from "@/_providers/auth/useAuth";
 
+/**
+ * RoomOptions component provides options and actions related to a game room.
+ *
+ * This component currently provides an "Exit" button which allows the user to exit the room.
+ * Upon exiting, the room's `exitGame` field in Firestore will be updated with the exiting user's ID,
+ * and the user will be redirected to the homepage.
+ *
+ * @returns The rendered RoomOptions component.
+ */
 export default function RoomOptions() {
     const { push } = useRouter();
     const { id }: { id: string } = useParams();

@@ -60,6 +60,14 @@ export default function ModalGameOver() {
         return "The game ended in a draw!";
     }, [ gamersState ])
 
+    /**
+     * Asynchronously fetches the game room data from Firestore.
+     *
+     * This function does the following:
+     * - Fetches the document of the current game room using its ID.
+     * - Updates the `room` state with the fetched data.
+     * - If an error occurs during the fetch, a toast error message is displayed.
+     */
     const handleGetRoom = useCallback(async () => {
        try {
            const docSnap = await getDoc(roomDocRef)
@@ -72,6 +80,14 @@ export default function ModalGameOver() {
        }
     }, [ roomDocRef ]);
 
+    /**
+     * Asynchronously fetches the users' data associated with the current game room from Firestore.
+     *
+     * This function does the following:
+     * - Fetches the documents of both the gamers using their IDs.
+     * - Updates the `gamers` state with the fetched users' data.
+     * - If an error occurs during the fetch, a toast error message is displayed.
+     */
     const handleGetUsers = useCallback(async () => {
        try {
            const gamer1DocRef = doc(db, "users", room?.gamer1.id as string);

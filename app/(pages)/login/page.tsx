@@ -8,6 +8,12 @@ import { auth, provider } from "@/_libs/firebase";
 import useAuth from "@/_providers/auth/useAuth";
 import { User } from "@/_types";
 
+/**
+ * Checks if a given URL has the same origin as the current window location.
+ *
+ * @param {string} url - The URL to be checked.
+ * @returns {boolean} - Returns `true` if the origins match, `false` otherwise.
+ */
 const isSameOrigin = (url: string): boolean => {
     try {
         const { origin } = new URL(url, window.location.origin);
@@ -23,6 +29,14 @@ export default function Page() {
     const searchParams = useSearchParams();
     const [ showScreen, setShowScreen ] = useState(false);
 
+    /**
+     * Adds user data to Firestore.
+     *
+     * If the user doesn't exist in Firestore, the function creates a new record
+     * with the user's uid, displayName, and email.
+     *
+     * @param {User} user - The user object containing user data.
+     */
     const addUserToFirestore = useCallback(async (user: User) => {
         try {
             const userRef = doc(getFirestore(), 'users', user.uid);
@@ -39,6 +53,14 @@ export default function Page() {
             toast.error("Oops! Something went wrong while creating your account. Please try again!")
         }
     }, []);
+
+    /**
+     * Handles the authentication redirect result.
+     *
+     * If the redirect results in a successful authentication, the user data is added to Firestore.
+     * Then, based on the 'redirect' parameter in the URL, the user is redirected either to the
+     * specified path or the root path.
+     */
     const handleRedirect = useCallback(async () => {
         const redirectResult = await getRedirectResult(auth);
         if (redirectResult?.user) {
@@ -54,15 +76,20 @@ export default function Page() {
         }
     }, [ isLoaded, user, addUserToFirestore, push, searchParams ])
 
+
+    /**
+     * Effect hook to handle user authentication state and redirects.
+     *
+     * - If user data has loaded and no user is authenticated, the sign-in screen is displayed.
+     * - The `handleRedirect` function is called to potentially redirect the user after authentication.
+     * - A timeout is set to clear itself after 300ms (this seems to be a no-op and might be unnecessary).
+     */
     useEffect(() => {
         if (isLoaded && !user) {
             setShowScreen(true);
         }
 
         handleRedirect();
-        const timeoutID = setTimeout(() => {
-            clearTimeout(timeoutID);
-        }, 300)
     }, [ isLoaded, user, handleRedirect ]);
 
     if (!showScreen) return;

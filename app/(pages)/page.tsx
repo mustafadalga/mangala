@@ -17,6 +17,18 @@ function Home() {
     const [ roomID, setRoomID ] = useState<string | null>(null);
 
     const currentStoneIndex = useRef(1);
+
+    /**
+     * Asynchronously creates a new game room in Firestore.
+     *
+     * This function does the following:
+     * - Opens a loading screen using the `loader` from `useLoader`.
+     * - Prepares the initial game data with pits generated using `generatePits`.
+     * - Adds the game data to the 'rooms' collection in Firestore.
+     * - On success, updates the local state with the new room ID.
+     * - Closes the loading screen.
+     * - If an error occurs during the process, a toast error message is displayed.
+     */
     const handleCreateGame = async () => {
        try {
            loader.onOpen();

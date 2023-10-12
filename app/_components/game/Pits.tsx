@@ -23,6 +23,25 @@ const SINGLE_STONE_THRESHOLD = 1;
 const LAST_STONE_THRESHOLD = 0;
 const TOP_BOUNDARY = -1;
 const BOTTOM_BOUNDARY = 6;
+
+/**
+ * Renders a series of game pits and manages their interactions.
+ *
+ * This component manages the game logic for pits, updating the pits and related game data
+ * in response to user interactions.
+ *
+ * @props
+ * - gamer: The current gamer data.
+ * - rivalGamer: The rival gamer data.
+ * - gameOwner: The ID of the game owner.
+ * - moveOrder: The ID of the gamer whose turn it is.
+ * - isCurrentGamerPits: Indicates if the pits belong to the current user.
+ * - position: The position of the pits (Top/Bottom).
+ * - isGameStarted: Indicates if the game has started.
+ * - isGameCompleted: Indicates if the game has ended.
+ *
+ * @returns A series of rendered pits.
+ */
 export default function Pits({
                                  gamer,
                                  rivalGamer,
@@ -41,6 +60,16 @@ export default function Pits({
     const isUserAllowedToMove = (user?.uid == moveOrder) && isGameStarted && !isGameCompleted;
     const hasRight = isCurrentGamerPits && isUserAllowedToMove;
     const isGameOwner = user?.uid == gameOwner;
+
+    /**
+     * Determines the winner of the game.
+     *
+     * @param currentGamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param isAllPitsEmpty - A flag indicating if all pits are empty.
+     *
+     * @returns The ID of the winning gamer or null if it's a tie.
+     */
     const determineWinner = useCallback((currentGamer: Gamer, rival: Gamer, isAllPitsEmpty: boolean): string | null => {
         if (!isAllPitsEmpty) return null;
 
@@ -49,6 +78,16 @@ export default function Pits({
         else return null;
 
     }, []);
+
+    /**
+     * Checks and handles the scenario when the last stone makes a rival's pit even.
+     *
+     * @param gamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param currentIndex - The current index of the pit being processed.
+     * @param isLastStone - A flag indicating if the current stone is the last one.
+     * @param isDirectionTop - A flag indicating the direction of stone movement.
+     */
     const handleIsLastStoneMakesRivalPitEven = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, isLastStone: boolean, isDirectionTop: boolean) => {
         const isLastStoneMakesRivalPitEven = isLastStone && ((isDirectionTop && !isGameOwner) || (!isDirectionTop && isGameOwner)) && rival.pits[currentIndex].length % 2 === 0;
         if (isLastStoneMakesRivalPitEven) {
@@ -57,6 +96,15 @@ export default function Pits({
         }
     }, [ isGameOwner ]);
 
+
+    /**
+     * Checks and handles the scenario when the last pit has only one stone.
+     *
+     * @param gamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param currentIndex - The current index of the pit being processed.
+     * @param isLastStone - A flag indicating if the current stone is the last one.
+     */
     const handleIsLastPitOneStone = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, isLastStone: boolean) => {
         const isLastPitOneStone = gamer.pits[currentIndex].length === SINGLE_STONE_THRESHOLD;
         const hasRivalPitOneStone = rival.pits[currentIndex].length > LAST_STONE_THRESHOLD;
@@ -66,6 +114,16 @@ export default function Pits({
             rival.pits[currentIndex] = [];
         }
     }, []);
+
+    /**
+     * Updates the current pit based on game rules.
+     *
+     * @param gamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param currentIndex - The current index of the pit being processed.
+     * @param selectedPit - The selected pit.
+     * @param isDirectionTop - A flag indicating the direction of stone movement.
+     */
     const handleUpdateCurrentPit = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, selectedPit: IPit, isDirectionTop: boolean) => {
         const stone: Stone = selectedPit.shift()!;
 
@@ -75,6 +133,13 @@ export default function Pits({
             isDirectionTop ? rival.pits[currentIndex].push(stone) : gamer.pits[currentIndex].push(stone);
         }
     }, [ isGameOwner ])
+
+    /**
+     * Checks if all pits are empty and handles the logic accordingly.
+     *
+     * @param gamer - The current gamer.
+     * @param rival - The rival gamer.
+     */
     const handleAllPitsEmpty = useCallback((gamer: Gamer, rival: Gamer) => {
         const isAllPitsEmpty = gamer.pits.every(pit => pit.length == 0);
         if (isAllPitsEmpty) {
@@ -83,6 +148,15 @@ export default function Pits({
         }
         return isAllPitsEmpty;
     }, []);
+
+    /**
+     * Updates the Firestore database with the current state of the game.
+     *
+     * @param currentGamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param isLastStoneInTreasure - A flag indicating if the last stone is in the treasure.
+     * @param isAllPitsEmpty - A flag indicating if all pits are empty.
+     */
     const updateFirebase = useCallback(async (currentGamer: Gamer, rival: Gamer, isLastStoneInTreasure: boolean, isAllPitsEmpty: boolean) => {
         try {
             await updateDoc(docRef, {
@@ -110,6 +184,16 @@ export default function Pits({
         }
     }, [ isGameOwner, docRef, determineWinner ]);
 
+    /**
+     * Handles boundary conditions when moving stones between pits.
+     *
+     * @param gamer - The current gamer.
+     * @param rival - The rival gamer.
+     * @param currentIndex - The current index of the pit being processed.
+     * @param selectedPit - The selected pit.
+     * @param direction - The direction in which the stones are moving.
+     * @param isLastStone - A flag indicating if the current stone is the last one.
+     */
     const handleBoundaryConditions = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, selectedPit: IPit, direction: Direction, isLastStone: boolean) => {
         let isLastStoneInTreasure = false;
         if ((currentIndex != TOP_BOUNDARY) && (currentIndex !== BOTTOM_BOUNDARY)) {
@@ -158,6 +242,12 @@ export default function Pits({
 
     }, [ isGameOwner ])
 
+    /**
+     * Handles the logic when a pit is clicked on.
+     *
+     * @param pit - The selected pit.
+     * @param pitIndex - The index of the selected pit.
+     */
     const handlePit = useCallback(async (pit: IPit, pitIndex: number) => {
         if (!hasRight || pit.length == 0) return;
 
@@ -211,7 +301,13 @@ export default function Pits({
         handleBoundaryConditions,
     ]);
 
-
+    /**
+     * Given a pit and its index, returns a click handler function for that pit.
+     *
+     * @param pit - The pit for which the click handler is being created.
+     * @param index - The index of the pit.
+     * @returns A click handler function.
+     */
     const createPitClickHandler = useCallback(
         (pit: IPit, index: number) => () => handlePit(pit, index),
         [ handlePit ]

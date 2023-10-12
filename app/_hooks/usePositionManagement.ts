@@ -4,6 +4,17 @@ import { isEqual } from "lodash";
 import generatePositionsForStones from "@/_utilities/generatePositionsForStones";
 import { PositionThreshold, Stone, StoneWithPosition } from "@/_types";
 
+/**
+ * Custom hook to manage and generate positions for a set of items (like stones).
+ *
+ * This hook provides positions based on the current window size and updates those positions
+ * if the window is resized. It ensures the positions are deeply compared and only updates
+ * if there are deep changes.
+ *
+ * @param initialThresholdFunction - Function returning the current position thresholds.
+ * @param itemType - Array of items to generate positions for.
+ * @returns Array of items with their respective positions.
+ */
 export default function usePositionManagement(initialThresholdFunction: () => PositionThreshold, itemType: Stone[]) {
     const [ currentThreshold, setCurrentThreshold ] = useState<PositionThreshold>(initialThresholdFunction());
     const [ itemsWithPosition, setItemsWithPosition ] = useState(() => generatePositionsForStones(currentThreshold));
