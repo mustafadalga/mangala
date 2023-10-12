@@ -25,6 +25,7 @@ import RoomOptions from "@/_components/game/RoomOptions";
 import CountdownProgressBar from "@/_components/game/CountdownProgressBar";
 import ModalGameOver from "@/_components/modals/game-over/ModalGameOver";
 import useModalGameOver from "@/_store/useModalGameOver";
+import ModalExitGame from "@/_components/modals/exit-game/ModalExitGame";
 
 
 const Page = ({ params: { id } }: {
@@ -46,6 +47,11 @@ const Page = ({ params: { id } }: {
     const isFirstGamer = useMemo(() => user?.uid == room?.gamer1.id, [ room?.gamer1.id, user?.uid ]);
     const showCountDown = room?.isGameStarted && !room?.isGameCompleted;
     const docRef: DocumentReference = doc(db, "rooms", id);
+    const showModalExitGame = useMemo(() => {
+        if (!isUserLoaded || !areBothGamersJoined) return false;
+
+        return room?.exitGame?.userId && room.exitGame.userId !== user?.uid
+    }, [ isUserLoaded, areBothGamersJoined, room?.exitGame?.userId, user?.uid ]);
 
     const countDownState = useMemo(() => ({
         left: room?.gamer1.id === room?.moveOrder,
@@ -122,7 +128,7 @@ const Page = ({ params: { id } }: {
             push("/");
         }
 
-    }, [ isUserLoaded, room?.gamer1, room?.gamer2, hasAuthorization, areBothGamersJoined, push ])
+    }, [ isUserLoaded, room?.gamer1, room?.gamer2, hasAuthorization, areBothGamersJoined, push ]);
 
     if (!room) return null;
 
@@ -186,6 +192,7 @@ const Page = ({ params: { id } }: {
             </main>
             <AnimatePresence>
                 {isModalGameOverOpen && <ModalGameOver/>}
+                {showModalExitGame && <ModalExitGame/>}
             </AnimatePresence>
 
         </PageContainer>);
