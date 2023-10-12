@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { doc, DocumentReference, getFirestore, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 import Countdown from "@/_components/Countdown";
 import { Room } from "@/_types";
 import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
@@ -26,10 +27,14 @@ export default function CountdownProgressBar({ room, startTime, pause, className
     }, [ memorizedStartTime ]);
 
     const onComplete = useCallback(() => {
-        updateDoc(docRef, {
-            "moveOrder": room.moveOrder == room.gamer1.id ? room.gamer2.id : room.gamer1.id,
-            moveStartTimestamp: serverTimestamp(),
-        });
+       try {
+           updateDoc(docRef, {
+               "moveOrder": room.moveOrder == room.gamer1.id ? room.gamer2.id : room.gamer1.id,
+               moveStartTimestamp: serverTimestamp(),
+           });
+       }catch (e) {
+           toast.error("Oops! Something went wrong while updating move order. Please try again!")
+       }
     }, [ docRef, room.moveOrder, room.gamer1.id, room.gamer2.id ])
 
     return <Countdown

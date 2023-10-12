@@ -8,13 +8,15 @@ import {
     updateDoc,
     getFirestore,
     onSnapshot,
-    serverTimestamp
+    serverTimestamp,
+    Timestamp
 } from "firebase/firestore"
 import { AnimatePresence } from "framer-motion";
-import { Timestamp } from "firebase/firestore";
+import { toast } from "react-toastify";
 import useLoader from "@/_store/useLoader";
 import withAuth from "@/_hocs/withAuth";
 import useAuth from "@/_providers/auth/useAuth";
+import useModalGameOver from "@/_store/useModalGameOver";
 import convertObjectToArray from "@/_utilities/convertObjectToArray";
 import { Direction } from "@/_enums";
 import { Room, RoomRaw } from "@/_types";
@@ -24,7 +26,6 @@ import PageContainer from "@/_components/PageContainer";
 import RoomOptions from "@/_components/game/RoomOptions";
 import CountdownProgressBar from "@/_components/game/CountdownProgressBar";
 import ModalGameOver from "@/_components/modals/game-over/ModalGameOver";
-import useModalGameOver from "@/_store/useModalGameOver";
 import ModalExitGame from "@/_components/modals/exit-game/ModalExitGame";
 
 
@@ -59,15 +60,23 @@ const Page = ({ params: { id } }: {
     }), [ room?.gamer1.id, room?.gamer2.id, room?.moveOrder ]);
 
     const setSecondGamer = useCallback(async () => {
-        await updateDoc(docRef, {
-            "gamer2.id": user?.uid,
-        })
+        try {
+            await updateDoc(docRef, {
+                "gamer2.id": user?.uid,
+            })
+        } catch (e) {
+            toast.error("Oops! Something went wrong while starting game. Please refresh the page and try again!")
+        }
     }, [ user?.uid, docRef ]);
     const startGame = useCallback(async () => {
-        await updateDoc(docRef, {
-            isGameStarted: true,
-            moveStartTimestamp: serverTimestamp(),
-        })
+        try {
+            await updateDoc(docRef, {
+                isGameStarted: true,
+                moveStartTimestamp: serverTimestamp(),
+            })
+        } catch (e) {
+            toast.error("Oops! Something went wrong while starting game. Please refresh the page and try again!")
+        }
     }, [ docRef ]);
 
     const setRoomData = useCallback((roomRaw: RoomRaw) => {
@@ -88,16 +97,24 @@ const Page = ({ params: { id } }: {
         [ areBothGamersJoined, user?.uid, room?.gamer1.id, room?.gamer2.id ]);
 
     useEffect(() => {
-        const unSubscribe = onSnapshot(docRef, (doc: DocumentSnapshot) => {
-            if (doc.exists()) {
-                setRoomData(doc.data() as RoomRaw)
-            } else {
-                push("/")
-            }
-        });
+        let unSubscribe: (() => void) | undefined;
+
+        try {
+            unSubscribe = onSnapshot(docRef, (doc: DocumentSnapshot) => {
+                if (doc.exists()) {
+                    setRoomData(doc.data() as RoomRaw)
+                } else {
+                    push("/")
+                }
+            });
+        } catch (_) {
+            toast.error("Oops! Something went wrong while loading game. Please refresh the page and try again!")
+        }
 
         return () => {
-            unSubscribe();
+            if (unSubscribe) {
+                unSubscribe();
+            }
         };
     }, []);
 

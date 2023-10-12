@@ -1,6 +1,7 @@
 import { useParams } from "next/navigation";
-import { doc, DocumentReference, getDoc, getFirestore } from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { doc, DocumentReference, getDoc, getFirestore } from "firebase/firestore";
+import { toast } from "react-toastify";
 import { motion } from 'framer-motion';
 import IconXMark from "@/_components/icons/IconXMark";
 import useModalGameOver from "@/_store/useModalGameOver";
@@ -60,30 +61,39 @@ export default function ModalGameOver() {
     }, [ gamersState ])
 
     const handleGetRoom = useCallback(async () => {
-        const docSnap = await getDoc(roomDocRef)
-        if (docSnap.exists()) {
-            setRoom(docSnap.data() as RoomRaw)
-        }
+       try {
+           const docSnap = await getDoc(roomDocRef)
+           if (docSnap.exists()) {
+               setRoom(docSnap.data() as RoomRaw)
+           }
+       }catch (e) {
+           toast.error("Oops! Something went wrong while loading room data. Please refresh the page and try again!")
+
+       }
     }, [ roomDocRef ]);
 
     const handleGetUsers = useCallback(async () => {
-        const gamer1DocRef = doc(db, "users", room?.gamer1.id as string);
-        const gamer2DocRef = doc(db, "users", room?.gamer2.id as string);
+       try {
+           const gamer1DocRef = doc(db, "users", room?.gamer1.id as string);
+           const gamer2DocRef = doc(db, "users", room?.gamer2.id as string);
 
-        const gamer1DocSnap = await getDoc(gamer1DocRef);
-        const gamer2DocSnap = await getDoc(gamer2DocRef);
+           const gamer1DocSnap = await getDoc(gamer1DocRef);
+           const gamer2DocSnap = await getDoc(gamer2DocRef);
 
-        const users = [];
+           const users = [];
 
-        if (gamer1DocSnap.exists()) {
-            users.push(gamer1DocSnap.data() as User);
-        }
+           if (gamer1DocSnap.exists()) {
+               users.push(gamer1DocSnap.data() as User);
+           }
 
-        if (gamer2DocSnap.exists()) {
-            users.push(gamer2DocSnap.data() as User);
-        }
+           if (gamer2DocSnap.exists()) {
+               users.push(gamer2DocSnap.data() as User);
+           }
 
-        setGamers(users)
+           setGamers(users)
+       }catch (e) {
+           toast.error("Oops! Something went wrong while loading users. Please refresh the page and try again!")
+       }
 
     }, [ room?.gamer1.id, room?.gamer2.id, db ]);
 
@@ -96,7 +106,6 @@ export default function ModalGameOver() {
             handleGetUsers();
         }
     }, [ room?.gamer1.id, room?.gamer2, handleGetUsers ]);
-
 
     return (
             <motion.section

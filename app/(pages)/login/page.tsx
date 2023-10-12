@@ -1,11 +1,11 @@
 "use client";
-
-import { signInWithRedirect, getRedirectResult } from "firebase/auth";
-import { auth, provider } from "@/_libs/firebase";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import useAuth from "@/_providers/auth/useAuth";
+import { signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
+import { auth, provider } from "@/_libs/firebase";
+import useAuth from "@/_providers/auth/useAuth";
 import { User } from "@/_types";
 
 const isSameOrigin = (url: string): boolean => {
@@ -23,17 +23,20 @@ export default function Page() {
     const searchParams = useSearchParams();
     const [ showScreen, setShowScreen ] = useState(false);
 
-
     const addUserToFirestore = useCallback(async (user: User) => {
-        const userRef = doc(getFirestore(), 'users', user.uid);
-        const userSnapshot = await getDoc(userRef);
+        try {
+            const userRef = doc(getFirestore(), 'users', user.uid);
+            const userSnapshot = await getDoc(userRef);
 
-        if (!userSnapshot.exists()) {
-            await setDoc(userRef, {
-                uid: user.uid,
-                displayName: user.displayName,
-                email: user.email,
-            });
+            if (!userSnapshot.exists()) {
+                await setDoc(userRef, {
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    email: user.email,
+                });
+            }
+        }catch (e) {
+            toast.error("Oops! Something went wrong while creating your account. Please try again!")
         }
     }, []);
     const handleRedirect = useCallback(async () => {

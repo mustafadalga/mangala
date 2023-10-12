@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useParams } from "next/navigation";
 import { doc, DocumentReference, getFirestore, serverTimestamp, updateDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 import useAuth from "@/_providers/auth/useAuth";
 import convertArrayToObject from "@/_utilities/convertArrayToObject";
 import { Gamer, Pit as IPit, Stone } from "@/_types";
@@ -22,7 +23,16 @@ const SINGLE_STONE_THRESHOLD = 1;
 const LAST_STONE_THRESHOLD = 0;
 const TOP_BOUNDARY = -1;
 const BOTTOM_BOUNDARY = 6;
-export default function Pits({ gamer, rivalGamer, gameOwner, moveOrder, isCurrentGamerPits, position, isGameStarted, isGameCompleted }: Props) {
+export default function Pits({
+                                 gamer,
+                                 rivalGamer,
+                                 gameOwner,
+                                 moveOrder,
+                                 isCurrentGamerPits,
+                                 position,
+                                 isGameStarted,
+                                 isGameCompleted
+                             }: Props) {
     const { id: roomID }: { id: string } = useParams();
     const db = getFirestore()
 
@@ -74,27 +84,30 @@ export default function Pits({ gamer, rivalGamer, gameOwner, moveOrder, isCurren
         return isAllPitsEmpty;
     }, []);
     const updateFirebase = useCallback(async (currentGamer: Gamer, rival: Gamer, isLastStoneInTreasure: boolean, isAllPitsEmpty: boolean) => {
-
-        await updateDoc(docRef, {
-            "gamer1": isGameOwner ? {
-                ...currentGamer,
-                pits: convertArrayToObject(currentGamer.pits)
-            } : {
-                ...rival,
-                pits: convertArrayToObject(rival.pits)
-            },
-            "gamer2": isGameOwner ? {
-                ...rival,
-                pits: convertArrayToObject(rival.pits)
-            } : {
-                ...currentGamer,
-                pits: convertArrayToObject(currentGamer.pits)
-            },
-            "moveOrder": isLastStoneInTreasure ? currentGamer.id : rival.id,
-            "isGameCompleted": isAllPitsEmpty,
-            "winnerGamer": determineWinner(currentGamer, rival, isAllPitsEmpty),
-            moveStartTimestamp: serverTimestamp(),
-        });
+        try {
+            await updateDoc(docRef, {
+                "gamer1": isGameOwner ? {
+                    ...currentGamer,
+                    pits: convertArrayToObject(currentGamer.pits)
+                } : {
+                    ...rival,
+                    pits: convertArrayToObject(rival.pits)
+                },
+                "gamer2": isGameOwner ? {
+                    ...rival,
+                    pits: convertArrayToObject(rival.pits)
+                } : {
+                    ...currentGamer,
+                    pits: convertArrayToObject(currentGamer.pits)
+                },
+                "moveOrder": isLastStoneInTreasure ? currentGamer.id : rival.id,
+                "isGameCompleted": isAllPitsEmpty,
+                "winnerGamer": determineWinner(currentGamer, rival, isAllPitsEmpty),
+                moveStartTimestamp: serverTimestamp(),
+            });
+        } catch (e) {
+            toast.error("Oops! Something went wrong while updating game. Please try again!")
+        }
     }, [ isGameOwner, docRef, determineWinner ]);
 
     const handleBoundaryConditions = useCallback((gamer: Gamer, rival: Gamer, currentIndex: number, selectedPit: IPit, direction: Direction, isLastStone: boolean) => {
@@ -165,7 +178,12 @@ export default function Pits({ gamer, rivalGamer, gameOwner, moveOrder, isCurren
             const isDirectionTop = direction == Direction.Top;
             let hasBoundary = false;
 
-            ({ currentIndex, direction, isLastStoneInTreasure, hasBoundary } = handleBoundaryConditions(newGamer, newRival, currentIndex, selectedPit, direction, isLastStone));
+            ({
+                currentIndex,
+                direction,
+                isLastStoneInTreasure,
+                hasBoundary
+            } = handleBoundaryConditions(newGamer, newRival, currentIndex, selectedPit, direction, isLastStone));
 
             if (hasBoundary) continue;
 

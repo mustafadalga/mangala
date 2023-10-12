@@ -1,12 +1,13 @@
 "use client";
 import { useRef, useState } from "react";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { toast } from "react-toastify";
 import withAuth from "@/_hocs/withAuth";
 import useAuth from "@/_providers/auth/useAuth";
 import generatePits from "@/_utilities/generatePits";
-import PageContainer from "@/_components/PageContainer";
-import { RoomRaw } from "@/_types";
 import useLoader from "@/_store/useLoader";
+import { RoomRaw } from "@/_types";
+import PageContainer from "@/_components/PageContainer";
 import ClipBoardURL from "@/_components/ClipBoardURL";
 
 
@@ -17,29 +18,34 @@ function Home() {
 
     const currentStoneIndex = useRef(1);
     const handleCreateGame = async () => {
-        loader.onOpen();
-        const collectionRef = collection(getFirestore(), "rooms");
-        const gameData: RoomRaw = {
-            isGameStarted: false,
-            isGameCompleted: false,
-            winnerGamer: null,
-            gameOwner: user?.uid as string,
-            moveOrder: user?.uid as string,
-            moveStartTimestamp: null,
-            gamer1: {
-                id: user?.uid || null,
-                treasure: [],
-                pits: generatePits(currentStoneIndex),
-            },
-            gamer2: {
-                id: null,
-                treasure: [],
-                pits: generatePits(currentStoneIndex),
-            }
-        }
-        const docRef = await addDoc(collectionRef, gameData)
-        loader.onClose();
-        setRoomID(docRef.id);
+       try {
+           loader.onOpen();
+           const collectionRef = collection(getFirestore(), "rooms");
+           const gameData: RoomRaw = {
+               isGameStarted: false,
+               isGameCompleted: false,
+               winnerGamer: null,
+               gameOwner: user?.uid as string,
+               moveOrder: user?.uid as string,
+               moveStartTimestamp: null,
+               gamer1: {
+                   id: user?.uid || null,
+                   treasure: [],
+                   pits: generatePits(currentStoneIndex),
+               },
+               gamer2: {
+                   id: null,
+                   treasure: [],
+                   pits: generatePits(currentStoneIndex),
+               }
+           }
+           const docRef = await addDoc(collectionRef, gameData)
+           setRoomID(docRef.id);
+       }catch (e) {
+           toast.error("Oops! Something went wrong while starting your game. Please try again!")
+       }finally {
+           loader.onClose();
+       }
     }
 
 

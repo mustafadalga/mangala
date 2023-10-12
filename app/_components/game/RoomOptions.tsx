@@ -1,5 +1,6 @@
 import { useParams, useRouter } from "next/navigation";
 import { doc, DocumentReference, getFirestore, updateDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 import useLoader from "@/_store/useLoader";
 import useAuth from "@/_providers/auth/useAuth";
 
@@ -13,14 +14,18 @@ export default function RoomOptions() {
 
 
     const handleExit = async () => {
-        loader.onOpen();
-        await updateDoc(docRef, {
-            exitGame:{
-                userId: user?.uid as string,
-            }
-        })
-        loader.onClose();
-        push("/");
+       try {
+           loader.onOpen();
+           await updateDoc(docRef, {
+               exitGame:{
+                   userId: user?.uid as string,
+               }
+           })
+           loader.onClose();
+           push("/");
+       }catch (e){
+           toast.error("Oops! Something went wrong while exiting game. Please try again!")
+       }
     }
     return (
         <div className="m-20 flex justify-center gap-3">

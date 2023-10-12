@@ -1,7 +1,8 @@
+import { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import useModalGameOver from "@/_store/useModalGameOver";
 import { doc, DocumentReference, getFirestore, serverTimestamp, updateDoc } from "firebase/firestore";
-import { useRef } from "react";
+import { toast } from "react-toastify";
 import generatePits from "@/_utilities/generatePits";
 import useAuth from "@/_providers/auth/useAuth";
 
@@ -16,28 +17,36 @@ export default function ButtonGroup() {
     const docRef: DocumentReference = doc(db, "rooms", id);
 
     const handleNewGame = async () => {
-        await updateDoc(docRef, {
-            isGameStarted: true,
-            isGameCompleted: false,
-            winnerGamer: null,
-            gameOwner: user?.uid as string,
-            moveOrder: user?.uid as string,
-            moveStartTimestamp: serverTimestamp(),
-            "gamer1.treasure": [],
-            "gamer1.pits": generatePits(currentStoneIndex),
-            "gamer2.treasure": [],
-            "gamer2.pits": generatePits(currentStoneIndex),
-        })
-        onClose();
+      try {
+          await updateDoc(docRef, {
+              isGameStarted: true,
+              isGameCompleted: false,
+              winnerGamer: null,
+              gameOwner: user?.uid as string,
+              moveOrder: user?.uid as string,
+              moveStartTimestamp: serverTimestamp(),
+              "gamer1.treasure": [],
+              "gamer1.pits": generatePits(currentStoneIndex),
+              "gamer2.treasure": [],
+              "gamer2.pits": generatePits(currentStoneIndex),
+          })
+          onClose();
+      }catch (e) {
+          toast.error("Oops! Something went wrong while creating new game. Please refresh the page and try again!")
+      }
     }
     const handleExit = async () => {
-        await updateDoc(docRef, {
-            exitGame:{
-                userId: user?.uid as string,
-            }
-        })
-        onClose();
-        push("/");
+      try {
+          await updateDoc(docRef, {
+              exitGame:{
+                  userId: user?.uid as string,
+              }
+          })
+          onClose();
+          push("/");
+      }catch (e) {
+          toast.error("Oops! Something went wrong while exiting game. Please try again!")
+      }
     }
 
     return (

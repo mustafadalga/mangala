@@ -1,5 +1,6 @@
 import { useParams, useRouter } from "next/navigation";
 import { deleteDoc, doc, DocumentReference, getFirestore } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 export default function ButtonGroup() {
     const { push } = useRouter();
@@ -8,8 +9,12 @@ export default function ButtonGroup() {
     const docRef: DocumentReference = doc(db, "rooms", id);
 
     const handleExit = async () => {
-        await deleteDoc(docRef);
-        push("/");
+        try {
+            await deleteDoc(docRef);
+            push("/");
+        }catch (e){
+            toast.error("Oops! Something went wrong while exiting game. Please try again!")
+        }
     }
     return (
         <div className="mt-10 flex justify-center gap-3">
