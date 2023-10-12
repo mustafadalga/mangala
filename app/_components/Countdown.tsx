@@ -43,10 +43,10 @@ export default function Countdown({ initialSeconds, endSeconds, pause, className
     }, [ pause, initialSeconds ]);
 
     const progressBarStyle = {
-        background: `conic-gradient(rgb(220 38 38) 0% ${percentage}%, transparent ${percentage}%)`
+        background: `conic-gradient(rgb(239 68 68) 0% ${percentage}%, transparent ${percentage}%)`
     };
     return (
-        <div className={`${className} h-16 w-16 sm:h-20 sm:w-20 border rounded-full`}>
+        <div className={`${className} h-12 w-12 sm:h-16 sm:w-16 border rounded-full transition-all duration-700`}>
             <div className="w-full h-full rounded-full" style={progressBarStyle}></div>
         </div>
     );

@@ -135,7 +135,7 @@ const Page = ({ params: { id } }: {
     return (
         <PageContainer>
             <main
-                className="h-full flex flex-col bg-no-repeat bg-red-300 bg-cover bg-fixed bg-[url('/bg-room.jpeg')]">
+                className="h-full flex flex-col bg-no-repeat bg-cover bg-fixed bg-[url('/bg-room.jpeg')]">
                 <div className="lg:mt-20">
                     <div className="flex flex-col lg:flex-row items-center justify-center gap-5 p-5">
                         {room?.gamer1 && (
@@ -144,7 +144,7 @@ const Page = ({ params: { id } }: {
                                     <CountdownProgressBar
                                         room={room}
                                         pause={!countDownState.left}
-                                        className={countDownState.left ? "bg-green-600/50 border-green-500" : "backdrop-blur-sm bg-purple-900/10 border-white"}
+                                        className={countDownState.left ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"}
                                         startTime={room.moveStartTimestamp as Timestamp}/>}
                                 <Treasure treasure={room?.gamer1.treasure}/>
                             </div>
@@ -179,7 +179,7 @@ const Page = ({ params: { id } }: {
                                 {showCountDown && <CountdownProgressBar room={room}
                                                                         startTime={room.moveStartTimestamp as Timestamp}
                                                                         pause={!countDownState.right}
-                                                                        className={`${countDownState.right ? "bg-green-600/50 border-green-500" : "backdrop-blur-sm bg-purple-900/10 border-white"} order-2 lg:order-1`}/>
+                                                                        className={`${countDownState.right ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"} order-2 lg:order-1`}/>
                                 }
                                 <Treasure treasure={room?.gamer2.treasure}
                                           className="order-1 lg:order-2"/>

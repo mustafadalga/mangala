@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Pit = ({ pit, hasRight, onClick }: Props) => {
-    const className = hasRight ? "cursor-pointer bg-green-700/50 border-green-500" : "backdrop-blur-xl bg-white/25 border-white"
+    const className = hasRight ? "cursor-pointer bg-green-700/50 border-green-500" : "bg-indigo-800/50 border-white"
     const stones: StoneWithPosition[] = usePositionManagement(getPitThresholdByWindowSize, pit);
 
     return (
