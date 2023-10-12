@@ -1,39 +1,12 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { isEqual } from "lodash";
+import { memo } from "react";
 import { AnimatePresence } from 'framer-motion';
-import generatePositionsForStones from "@/_utilities/generatePositionsForStones";
-import useDeepCompareMemoize from "@/_hooks/useDeepCompareMemoize";
 import getTreasureThresholdByWindowSize from "@/_utilities/getTreasureThresholdByWindowSize";
-import { PositionThreshold, Stone as IStone } from "@/_types";
+import usePositionManagement from "@/_hooks/usePositionManagement";
+import { Stone as IStone, StoneWithPosition } from "@/_types";
 import Stone from "./Stone";
 
-
 const Treasure = ({ treasure, className }: { treasure: IStone[], className?: string }) => {
-    const [ currentThreshold, setCurrentThreshold ] = useState<PositionThreshold>(getTreasureThresholdByWindowSize());
-    const [ stonesWithPosition, setStonesWithPosition ] = useState(() => generatePositionsForStones(currentThreshold));
-    const memorizedTreasure = useDeepCompareMemoize<IStone[]>(treasure)
-
-    const stones = useMemo(() => memorizedTreasure.map((stone) => ({
-        stone,
-        position: stonesWithPosition[stone.no - 1]
-    })), [ memorizedTreasure, stonesWithPosition ]);
-
-    const handleResize = useCallback(() => {
-        const newThreshold = getTreasureThresholdByWindowSize();
-
-        if (!isEqual(currentThreshold, newThreshold)) {
-            setCurrentThreshold(newThreshold);
-            setStonesWithPosition(generatePositionsForStones(newThreshold));
-
-        }
-    }, [ currentThreshold ]);
-
-    useEffect(() => {
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+    const stones: StoneWithPosition[] = usePositionManagement(getTreasureThresholdByWindowSize, treasure);
 
     return (
         <div
