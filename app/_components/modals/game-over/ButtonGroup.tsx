@@ -30,7 +30,12 @@ export default function ButtonGroup() {
         })
         onClose();
     }
-    const handleExit = () => {
+    const handleExit = async () => {
+        await updateDoc(docRef, {
+            exitGame:{
+                userId: user?.uid as string,
+            }
+        })
         onClose();
         push("/");
     }

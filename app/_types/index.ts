@@ -20,6 +20,9 @@ export interface Room {
     moveStartTimestamp: Timestamp | null;
     gamer1: Gamer;
     gamer2: Gamer;
+    exitGame?: {
+        userId: string | null
+    }
 }
 
 export interface RoomRaw extends Omit<Room, "gamer1" | "gamer2"> {

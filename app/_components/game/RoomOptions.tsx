@@ -1,10 +1,12 @@
 import { useParams, useRouter } from "next/navigation";
 import { doc, DocumentReference, getFirestore, updateDoc } from "firebase/firestore";
 import useLoader from "@/_store/useLoader";
+import useAuth from "@/_providers/auth/useAuth";
 
 export default function RoomOptions() {
     const { push } = useRouter();
     const { id }: { id: string } = useParams();
+    const { user } = useAuth();
     const db = getFirestore();
     const loader = useLoader();
     const docRef: DocumentReference = doc(db, "rooms", id);
@@ -13,7 +15,9 @@ export default function RoomOptions() {
     const handleExit = async () => {
         loader.onOpen();
         await updateDoc(docRef, {
-            "isGameCompleted": true,
+            exitGame:{
+                userId: user?.uid as string,
+            }
         })
         loader.onClose();
         push("/");
