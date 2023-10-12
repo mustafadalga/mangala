@@ -138,20 +138,18 @@ const Page = ({ params: { id } }: {
                 className="h-full flex flex-col bg-no-repeat bg-cover bg-fixed bg-[url('/bg-room.jpeg')]">
                 <div className="lg:mt-20">
                     <div className="flex flex-col lg:flex-row items-center justify-center gap-5 p-5">
-                        {room?.gamer1 && (
-                            <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
-                                {showCountDown &&
-                                    <CountdownProgressBar
-                                        room={room}
-                                        pause={!countDownState.left}
-                                        className={countDownState.left ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"}
-                                        startTime={room.moveStartTimestamp as Timestamp}/>}
-                                <Treasure treasure={room?.gamer1.treasure}/>
-                            </div>
-                        )}
+                        <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
+                            {showCountDown &&
+                                <CountdownProgressBar
+                                    room={room}
+                                    pause={!countDownState.left}
+                                    className={countDownState.left ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"}
+                                    startTime={room.moveStartTimestamp as Timestamp}/>}
+                            <Treasure treasure={room?.gamer1.treasure}/>
+                        </div>
 
                         <div className="grid grid-cols-6 place-items-center gap-3 my-10 lg:mb-0 lg:mt-[5.626rem]">
-                            {room?.gamer1.pits && <Pits
+                            <Pits
                                 gamer={room.gamer1}
                                 rivalGamer={room.gamer2}
                                 gameOwner={room.gameOwner}
@@ -160,10 +158,10 @@ const Page = ({ params: { id } }: {
                                 isGameStarted={room.isGameStarted}
                                 isGameCompleted={room.isGameCompleted}
                                 position={Direction.Top}
-                            />}
+                            />
 
 
-                            {room?.gamer2.pits && <Pits
+                            <Pits
                                 gamer={room.gamer2}
                                 rivalGamer={room.gamer1}
                                 gameOwner={room.gameOwner}
@@ -171,20 +169,18 @@ const Page = ({ params: { id } }: {
                                 isCurrentGamerPits={user?.uid == room.gamer2.id}
                                 isGameStarted={room.isGameStarted}
                                 isGameCompleted={room.isGameCompleted}
-                                position={Direction.Bottom}/>}
+                                position={Direction.Bottom}/>
                         </div>
 
-                        {room?.gamer2 && (
-                            <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
-                                {showCountDown && <CountdownProgressBar room={room}
-                                                                        startTime={room.moveStartTimestamp as Timestamp}
-                                                                        pause={!countDownState.right}
-                                                                        className={`${countDownState.right ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"} order-2 lg:order-1`}/>
-                                }
-                                <Treasure treasure={room?.gamer2.treasure}
-                                          className="order-1 lg:order-2"/>
-                            </div>
-                        )}
+                        <div className="flex flex-col  w-full lg:w-auto  items-center gap-3">
+                            {showCountDown && <CountdownProgressBar room={room}
+                                                                    startTime={room.moveStartTimestamp as Timestamp}
+                                                                    pause={!countDownState.right}
+                                                                    className={`${countDownState.right ? "bg-green-950/50 border-green-500" : "bg-black/60 border-white"} order-2 lg:order-1`}/>
+                            }
+                            <Treasure treasure={room?.gamer2.treasure}
+                                      className="order-1 lg:order-2"/>
+                        </div>
                     </div>
 
                     {room && <RoomOptions/>}
@@ -194,7 +190,6 @@ const Page = ({ params: { id } }: {
                 {isModalGameOverOpen && <ModalGameOver/>}
                 {showModalExitGame && <ModalExitGame/>}
             </AnimatePresence>
-
         </PageContainer>);
 };
 
