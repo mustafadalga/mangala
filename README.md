@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# [Mangala Mind Game](https://mangala-game.vercel.app)
 
-## Getting Started
+<h6 align="center">
+<a href="[https://magicpyramid.vercel.app/](https://mangala-game.vercel.app/)">
+<img width="636" alt="Mangala Mind Game" src="https://github.com/mustafadalga/mangala/assets/25087769/3ab2c228-1d26-4d2b-bcdc-a0836c413f8b"></a>
+</h6>
 
-First, run the development server:
+## What is Mangala?
+Mangala is a Turkish Intelligence and Strategy Game played by two people. The game board consists of 12 small pits in pairs of 6 opposite each other, and a large treasure for each player to collect their stones. Mangala is played with 48 stones.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Players distribute 48 stones, 4 in each pit. Each player owns the 6 small pits in front of them, while the opposite 6 belong to the opponent. Players aim to collect the most stones in their treasury. The player with the most stones at the end wins the game.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Game Rules
+* The player whose turn it is takes 4 stones from any pit in their area. They leave one stone in the pit they took from, and distribute the rest one by one in the next pits counter clock wise.
+* If the last stone lands in the player's treasure, they get another turn.
+* If a pit has only one stone, the player can move this stone to the next pit on their right during their turn. The turn then passes to the opponent.
+* While distributing stones, if the player still has stones in hand, they continue placing stones in the opponent's pits. If the last stone makes the number of stones in an opponent's pit even (2, 4, 6, 8, etc.), the player takes all stones from that pit into their treasury. The turn then passes to the opponent.
+* If the last stone lands in an empty pit on the player's side, and there are stones in the opponent's pit opposite, the player takes all stones from the opponent's pit and the stone from their own pit into their treasure. The turn then passes to the opponent.
+* The game ends when one player's pits are emptied of stones. The player who empties their pits first takes all remaining stones from the opponent's pits.
+* At the end of the game, the stones in the treasuries are counted, and the player with the most stones wins. The game is drawn if the number of stones is equal.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Why Play Mangala?
+There are several reasons to play the Mangala Mind game:
+* **Enhancing mental skills and strategic thinking:** Players need to distribute stones effectively and predict their opponents' moves
+* **Providing a competitive and fun environment:** Players develop strategies to win against their opponents while having fun​1​.
+* **Social interaction:** Since Mangala is a game for two, it encourages social interaction between players​1​.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## License
+[![License](https://img.shields.io/badge/LICENSE-GPL--3.0-orange)](https://github.com/mustafadalga/mangala/blob/main/LICENSE)
