@@ -25,6 +25,16 @@ There are several reasons to play the Mangala Mind game:
 * **Providing a competitive and fun environment:** Players develop strategies to win against their opponents while having fun​1​.
 * **Social interaction:** Since Mangala is a game for two, it encourages social interaction between players​1​.
 
+<hr/>
+
+### Used Technologies
+*  Next.js
+*  Typescript
+*  Firebase for auth and real time database
+*  Zustand for state management
+*  TailwindCSS for user interface
+
+
 
 ## License
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-orange)](https://github.com/mustafadalga/mangala/blob/main/LICENSE)
