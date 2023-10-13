@@ -14,7 +14,7 @@ Players distribute 48 stones, 4 in each pit. Each player owns the 6 small pits i
 * The player whose turn it is takes 4 stones from any pit in their area. They leave one stone in the pit they took from, and distribute the rest one by one in the next pits counter clock wise.
 * If the last stone lands in the player's treasure, they get another turn.
 * If a pit has only one stone, the player can move this stone to the next pit on their right during their turn. The turn then passes to the opponent.
-* While distributing stones, if the player still has stones in hand, they continue placing stones in the opponent's pits. If the last stone makes the number of stones in an opponent's pit even (2, 4, 6, 8, etc.), the player takes all stones from that pit into their treasury. The turn then passes to the opponent.
+* While distributing stones, if the player still has stones in hand, they continue placing stones in the opponent's pits. If the last stone makes the number of stones in an opponent's pit even (2, 4, 6, 8, etc.), the player takes all stones from that pit into their treasure. The turn then passes to the opponent.
 * If the last stone lands in an empty pit on the player's side, and there are stones in the opponent's pit opposite, the player takes all stones from the opponent's pit and the stone from their own pit into their treasure. The turn then passes to the opponent.
 * The game ends when one player's pits are emptied of stones. The player who empties their pits first takes all remaining stones from the opponent's pits.
 * At the end of the game, the stones in the treasuries are counted, and the player with the most stones wins. The game is drawn if the number of stones is equal.
