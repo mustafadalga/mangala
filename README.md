@@ -2,7 +2,7 @@
 
 <h6 align="center">
 <a href="[https://magicpyramid.vercel.app/](https://mangala-game.vercel.app/)">
-<img width="636" alt="Mangala Mind Game" src="https://github.com/mustafadalga/mangala/assets/25087769/3ab2c228-1d26-4d2b-bcdc-a0836c413f8b"></a>
+<img width="636" alt="Mangala Mind Game" src="https://github.com/mustafadalga/mangala/assets/25087769/0f1a8d9a-e9af-455c-a0c9-7a8193533ba5"></a>
 </h6>
 
 ## What is Mangala?
