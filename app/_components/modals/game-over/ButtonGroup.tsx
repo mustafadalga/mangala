@@ -31,7 +31,6 @@ export default function ButtonGroup() {
               isGameStarted: true,
               isGameCompleted: false,
               winnerGamer: null,
-              gameOwner: user?.uid as string,
               moveOrder: user?.uid as string,
               moveStartTimestamp: serverTimestamp(),
               "gamer1.treasure": [],

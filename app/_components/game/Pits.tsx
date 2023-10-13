@@ -142,6 +142,7 @@ export default function Pits({
      */
     const handleAllPitsEmpty = useCallback((gamer: Gamer, rival: Gamer) => {
         const isAllPitsEmpty = gamer.pits.every(pit => pit.length == 0);
+
         if (isAllPitsEmpty) {
             rival.pits.map(pit => pit.map(stone => gamer.treasure.push(stone)))
             rival.pits = rival.pits.map(_ => []);
