@@ -35,6 +35,8 @@ There are several reasons to play the Mangala Mind game:
 *  TailwindCSS for user interface
 
 
+### Demo
+ https://youtu.be/8RvGgvTmkdA
 
 ## License
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-orange)](https://github.com/mustafadalga/mangala/blob/main/LICENSE)
