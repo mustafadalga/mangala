@@ -2,7 +2,9 @@
 
 <h6 align="center">
 <a href="[https://magicpyramid.vercel.app/](https://mangala-game.vercel.app/)">
-<img width="636" alt="Mangala Mind Game" src="https://github.com/mustafadalga/mangala/assets/25087769/0f1a8d9a-e9af-455c-a0c9-7a8193533ba5"></a>
+
+ ![Mangala Mind Game](https://github.com/mustafadalga/mangala/assets/25087769/01c4e25c-3908-4af4-b9e8-82179409db31)
+
 </h6>
 
 ## What is Mangala?
@@ -36,7 +38,7 @@ There are several reasons to play the Mangala Mind game:
 
 
 ### Demo
- https://youtu.be/8RvGgvTmkdA
+ [https://youtu.be/8RvGgvTmkdA](https://www.youtube.com/watch?v=ap6vpZkhuk4)
 
 ## License
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-orange)](https://github.com/mustafadalga/mangala/blob/main/LICENSE)
